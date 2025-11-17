@@ -130,26 +130,33 @@
             margin: 30px 0;
             text-align: center;
             page-break-inside: avoid;
-            padding-bottom: 20px;
+        }
+
+        .svg-container {
+            display: inline-block;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+            margin: 0 auto 20px auto;
+            max-width: 100%;
         }
 
         .diagram svg {
             max-width: 100%;
             height: auto;
             display: block;
-            margin: 0 auto 30px auto;
-            padding-bottom: 20px;
+            margin: 0 auto;
         }
 
         .diagram-caption {
             font-style: italic;
             color: #666;
-            margin-top: 25px;
-            padding-top: 15px;
+            margin-top: 20px;
+            padding-top: 5px;
             font-size: 0.9em;
             display: block;
             clear: both;
-            border-top: 1px solid #eee;
         }
 
         /* Equations */
@@ -349,6 +356,7 @@
         <text x="200" y="238" font-family="Arial" font-size="12" fill="white" text-anchor="middle">MLP Layer</text>
         <text x="200" y="278" font-family="Arial" font-size="12" fill="white" text-anchor="middle">× 12 Blocks</text>
     </svg>
+    </div>
 
     <div class="version">Version 0.1.0 | January 2025</div>
 </div>
@@ -646,6 +654,7 @@
 <p>Transformers broke this sequential constraint. They could "attend" to any part of the input simultaneously, understanding context in a fundamentally different way.</p>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
         <!-- Comparison: RNN vs Transformer -->
         <defs>
@@ -719,6 +728,7 @@
 
         <text x="300" y="440" font-family="Arial" font-size="12" text-anchor="middle" fill="#666" font-style="italic">× 12 layers in GPT-2</text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure 1.1: RNN vs Transformer architecture comparison</div>
 </div>
 
@@ -824,6 +834,7 @@ Predicts next token: "explore" (or "understand", "analyze"...)
 <p>GPT-2 consists of repeating blocks, each containing the same basic components. Understanding one block means understanding the whole model.</p>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
@@ -880,6 +891,7 @@ Predicts next token: "explore" (or "understand", "analyze"...)
         <ellipse cx="300" cy="505" rx="80" ry="20" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
         <text x="300" y="510" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Next Token</text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure 2.1: Complete GPT-2 architecture flow</div>
 </div>
 
@@ -1000,6 +1012,7 @@ attention_weights = softmax(masked_scores)
 output = attention_weights @ Value</code></pre>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 500 350" xmlns="http://www.w3.org/2000/svg">
         <!-- Attention Matrix Visualization -->
         <text x="250" y="25" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Attention Pattern Example</text>
@@ -1067,6 +1080,7 @@ output = attention_weights @ Value</code></pre>
             Each token can only attend to previous tokens (causal masking)
         </text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure 2.2: Attention matrix showing causal masking pattern</div>
 </div>
 
@@ -1163,6 +1177,7 @@ $$\text{GELU}(x) = x \cdot \Phi(x)$$
 <p>where \(\Phi(x)\) is the cumulative distribution function of the standard normal distribution.</p>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
         <!-- Activation Functions Comparison -->
         <text x="250" y="25" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Activation Functions: ReLU vs GELU</text>
@@ -1192,6 +1207,7 @@ $$\text{GELU}(x) = x \cdot \Phi(x)$$
             GELU is smoother than ReLU, works better for language models
         </text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure 2.3: Comparison of ReLU and GELU activation functions</div>
 </div>
 
@@ -1230,6 +1246,7 @@ x &= x + \text{MLP}(\text{LayerNorm}(x))
 <p>This allows gradients to flow backward through the network during training.</p>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
         <!-- Residual Connection Diagram -->
         <defs>
@@ -1271,6 +1288,7 @@ x &= x + \text{MLP}(\text{LayerNorm}(x))
         <rect x="150" y="295" width="100" height="30" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
         <text x="200" y="315" font-family="Arial" font-size="12" text-anchor="middle">Output x'</text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure 2.4: Residual connection allowing gradient flow</div>
 </div>
 
@@ -1498,6 +1516,7 @@ Output probabilities: {"mat": 0.32, "floor": 0.18, ...}
 <h2>Levels of Transparency</h2>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
         <!-- Transparency Levels -->
         <text x="300" y="30" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle">Levels of AI Transparency</text>
@@ -1527,6 +1546,7 @@ Output probabilities: {"mat": 0.32, "floor": 0.18, ...}
         <text x="575" y="210" font-family="Arial" font-size="10" fill="#666">We are</text>
         <text x="575" y="222" font-family="Arial" font-size="10" fill="#666">here</text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure I.1: The spectrum of AI transparency</div>
 </div>
 
@@ -1669,6 +1689,7 @@ Each token uses 2 of 8 experts (sparse activation)
 <h2>Architecture Comparison</h2>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <marker id="arrowmoe" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
@@ -1744,6 +1765,7 @@ Each token uses 2 of 8 experts (sparse activation)
         <text x="350" y="357" font-family="Arial" font-size="10" text-anchor="middle">Dense: Use 100% of params</text>
         <text x="350" y="372" font-family="Arial" font-size="10" text-anchor="middle">MoE: Use ~25% of params</text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure 8.1: Dense vs Mixture of Experts architecture</div>
 </div>
 
@@ -1970,6 +1992,7 @@ Expected: "4"</code></pre>
 <h3>The Key Difference</h3>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
         <!-- Base Model -->
         <rect x="50" y="50" width="500" height="100" rx="5" fill="#ffebee" stroke="#f44336" stroke-width="2"/>
@@ -1985,6 +2008,7 @@ Expected: "4"</code></pre>
         <text x="300" y="235" font-family="monospace" font-size="11" text-anchor="middle" fill="#666">Model: "User wants continuation.</text>
         <text x="300" y="250" font-family="monospace" font-size="11" text-anchor="middle" fill="#666">Predict: 'and looked around...'"</text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure 10.1: Base vs instruction-tuned model behavior</div>
 </div>
 
@@ -2041,6 +2065,7 @@ $$P(w_i) = \frac{e^{z_i / T}}{\sum_j e^{z_j / T}}$$
 <h2>The Evolution: GPT-2 → ChatGPT</h2>
 
 <div class="diagram">
+    <div class="svg-container">
     <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <marker id="timeline-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
@@ -2084,6 +2109,7 @@ $$P(w_i) = \frac{e^{z_i / T}}{\sum_j e^{z_j / T}}$$
         <text x="400" y="378" font-family="Arial" font-size="10" text-anchor="middle">Instruction tuning</text>
         <text x="400" y="391" font-family="Arial" font-size="10" text-anchor="middle">+ RLHF</text>
     </svg>
+    </div>
     <div class="diagram-caption">Figure 10.2: Evolution from base models to instruction-tuned models</div>
 </div>
 
