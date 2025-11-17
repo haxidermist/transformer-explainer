@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zen and the Art of LLM Inference</title>
+
+    <!-- MathJax for equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* Print and PDF optimizations */
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+        }
+
+        /* Cover page */
+        .cover {
+            page-break-after: always;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            margin: -20px -20px 0 -20px;
+        }
+
+        .cover h1 {
+            font-size: 3.5em;
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .cover .subtitle {
+            font-size: 1.5em;
+            margin: 20px 0;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .cover .version {
+            font-size: 1em;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        .cover-graphic {
+            margin: 40px 0;
+            width: 400px;
+            height: 300px;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-top: 40px;
+            page-break-before: always;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #34495e;
+            margin-top: 30px;
+            border-bottom: 2px solid #95a5a6;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            color: #555;
+            margin-top: 25px;
+        }
+
+        p {
+            margin: 15px 0;
+            text-align: justify;
+        }
+
+        /* Code blocks */
+        pre {
+            background: #f4f4f4;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            page-break-inside: avoid;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        /* Diagrams and figures */
+        .diagram {
+            margin: 30px 0;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
+        .diagram svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .diagram-caption {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        /* Equations */
+        .equation {
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.1em;
+            page-break-inside: avoid;
+        }
+
+        /* Callout boxes */
+        .callout {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+
+        .callout.experiment {
+            border-left-color: #3498db;
+        }
+
+        .callout.reflection {
+            border-left-color: #e74c3c;
+        }
+
+        .callout.note {
+            border-left-color: #f39c12;
+        }
+
+        .callout h4 {
+            margin-top: 0;
+            color: #667eea;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid #95a5a6;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+
+        /* Table of contents */
+        .toc {
+            page-break-after: always;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc > ul > li {
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .toc ul ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .toc ul ul li {
+            font-weight: normal;
+            margin: 8px 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        /* Print optimizations */
+        @media print {
+            body {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .cover {
+                margin: 0;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                page-break-after: avoid;
+            }
+
+            pre, .callout, .diagram, table {
+                page-break-inside: avoid;
+            }
+
+            a {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            a[href^="http"]:after {
+                content: " (" attr(href) ")";
+                font-size: 0.8em;
+                font-style: italic;
+            }
+        }
+
+        /* Architecture diagrams */
+        .architecture {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 20px;
+            border: 2px solid #667eea;
+            margin: 20px 0;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
+        .flow-arrow {
+            color: #667eea;
+            font-size: 1.5em;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover">
+    <h1>Zen and the Art of<br>LLM Inference</h1>
+    <div class="subtitle">A Journey Through Transformer Architecture<br>and the Nature of Understanding</div>
+
+    <svg class="cover-graphic" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Abstract transformer architecture visualization -->
+        <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:rgba(255,255,255,0.8);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+            </linearGradient>
+        </defs>
+
+        <!-- Neural network nodes -->
+        <circle cx="50" cy="50" r="8" fill="url(#grad1)" />
+        <circle cx="100" cy="50" r="8" fill="url(#grad1)" />
+        <circle cx="150" cy="50" r="8" fill="url(#grad1)" />
+        <circle cx="200" cy="50" r="8" fill="url(#grad1)" />
+        <circle cx="250" cy="50" r="8" fill="url(#grad1)" />
+        <circle cx="300" cy="50" r="8" fill="url(#grad1)" />
+        <circle cx="350" cy="50" r="8" fill="url(#grad1)" />
+
+        <!-- Attention connections -->
+        <path d="M 50 50 Q 200 150 350 50" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/>
+        <path d="M 100 50 Q 200 120 300 50" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/>
+        <path d="M 150 50 Q 200 100 250 50" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/>
+
+        <!-- Layer blocks -->
+        <rect x="30" y="180" width="340" height="30" rx="5" fill="url(#grad1)" opacity="0.6"/>
+        <rect x="30" y="220" width="340" height="30" rx="5" fill="url(#grad1)" opacity="0.5"/>
+        <rect x="30" y="260" width="340" height="30" rx="5" fill="url(#grad1)" opacity="0.4"/>
+
+        <text x="200" y="198" font-family="Arial" font-size="12" fill="white" text-anchor="middle">Attention Layer</text>
+        <text x="200" y="238" font-family="Arial" font-size="12" fill="white" text-anchor="middle">MLP Layer</text>
+        <text x="200" y="278" font-family="Arial" font-size="12" fill="white" text-anchor="middle">× 12 Blocks</text>
+    </svg>
+
+    <div class="version">Version 0.1.0 | January 2025</div>
+</div>
+
+<!-- Table of Contents -->
+<div class="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+        <li>Part I: The Journey Begins
+            <ul>
+                <li>Chapter 1: What Is a Transformer?</li>
+                <li>Chapter 2: The Anatomy of GPT-2</li>
+                <li>Interlude I: On Understanding</li>
+            </ul>
+        </li>
+        <li>Part II: The Mechanics (Coming Soon)
+            <ul>
+                <li>Chapter 3: Inference vs Training</li>
+                <li>Chapter 4: Embeddings and Positional Encoding</li>
+                <li>Chapter 5: The Attention Mechanism</li>
+                <li>Chapter 6: Feed-Forward Networks</li>
+                <li>Chapter 7: Layer Normalization and Residuals</li>
+            </ul>
+        </li>
+        <li>Part III: The Future
+            <ul>
+                <li>Chapter 8: Mixture of Experts</li>
+                <li>Chapter 9: Converting Dense to Sparse (Coming Soon)</li>
+            </ul>
+        </li>
+        <li>Part IV: The Questions
+            <ul>
+                <li>Chapter 10: Query or Completion?</li>
+                <li>Chapter 11: The Magic Numbers (Coming Soon)</li>
+                <li>Chapter 12: What Don't We Know? (Coming Soon)</li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<!-- Chapter 1 -->
+<h1>Chapter 1: What Is a Transformer?</h1>
+
+<h2>The Architecture That Changed Everything</h2>
+
+<p>In 2017, a group of researchers at Google published a paper titled "Attention Is All You Need." The architecture they introduced—the Transformer—would fundamentally change how we build language models.</p>
+
+<p>Before Transformers, we had RNNs (Recurrent Neural Networks) and LSTMs (Long Short-Term Memory networks). These models processed text sequentially, one word at a time, like reading a book from left to right without ever looking back or skipping ahead.</p>
+
+<p>Transformers broke this sequential constraint. They could "attend" to any part of the input simultaneously, understanding context in a fundamentally different way.</p>
+
+<div class="diagram">
+    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <!-- Comparison: RNN vs Transformer -->
+        <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#667eea" />
+            </marker>
+        </defs>
+
+        <!-- RNN (Sequential) -->
+        <text x="80" y="30" font-family="Arial" font-size="18" font-weight="bold" fill="#2c3e50">RNN (Sequential)</text>
+
+        <rect x="20" y="50" width="60" height="40" rx="5" fill="#e8eaf6" stroke="#667eea" stroke-width="2"/>
+        <text x="50" y="75" font-family="Arial" font-size="14" text-anchor="middle">Word 1</text>
+
+        <path d="M 80 70 L 110 70" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+        <rect x="120" y="50" width="60" height="40" rx="5" fill="#e8eaf6" stroke="#667eea" stroke-width="2"/>
+        <text x="150" y="75" font-family="Arial" font-size="14" text-anchor="middle">Word 2</text>
+
+        <path d="M 180 70 L 210 70" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+        <rect x="220" y="50" width="60" height="40" rx="5" fill="#e8eaf6" stroke="#667eea" stroke-width="2"/>
+        <text x="250" y="75" font-family="Arial" font-size="14" text-anchor="middle">Word 3</text>
+
+        <!-- Transformer (Parallel) -->
+        <text x="380" y="30" font-family="Arial" font-size="18" font-weight="bold" fill="#2c3e50">Transformer (Parallel)</text>
+
+        <rect x="320" y="50" width="60" height="40" rx="5" fill="#fff3e0" stroke="#f39c12" stroke-width="2"/>
+        <text x="350" y="75" font-family="Arial" font-size="14" text-anchor="middle">Word 1</text>
+
+        <rect x="400" y="50" width="60" height="40" rx="5" fill="#fff3e0" stroke="#f39c12" stroke-width="2"/>
+        <text x="430" y="75" font-family="Arial" font-size="14" text-anchor="middle">Word 2</text>
+
+        <rect x="480" y="50" width="60" height="40" rx="5" fill="#fff3e0" stroke="#f39c12" stroke-width="2"/>
+        <text x="510" y="75" font-family="Arial" font-size="14" text-anchor="middle">Word 3</text>
+
+        <!-- Cross connections for attention -->
+        <path d="M 350 90 L 430 90" stroke="#f39c12" stroke-width="1.5" opacity="0.5"/>
+        <path d="M 350 95 L 510 95" stroke="#f39c12" stroke-width="1.5" opacity="0.5"/>
+        <path d="M 430 100 L 350 100" stroke="#f39c12" stroke-width="1.5" opacity="0.5"/>
+        <path d="M 430 105 L 510 105" stroke="#f39c12" stroke-width="1.5" opacity="0.5"/>
+        <path d="M 510 110 L 350 110" stroke="#f39c12" stroke-width="1.5" opacity="0.5"/>
+        <path d="M 510 115 L 430 115" stroke="#f39c12" stroke-width="1.5" opacity="0.5"/>
+
+        <!-- Labels -->
+        <text x="150" y="140" font-family="Arial" font-size="12" text-anchor="middle" fill="#666">
+            <tspan x="150">Processes one</tspan>
+            <tspan x="150" dy="15">word at a time</tspan>
+        </text>
+
+        <text x="420" y="140" font-family="Arial" font-size="12" text-anchor="middle" fill="#666">
+            <tspan x="420">All words can "attend"</tspan>
+            <tspan x="420" dy="15">to each other</tspan>
+        </text>
+
+        <!-- Architecture diagram -->
+        <text x="300" y="220" font-family="Arial" font-size="18" font-weight="bold" fill="#2c3e50" text-anchor="middle">Transformer Architecture</text>
+
+        <rect x="220" y="240" width="160" height="40" rx="5" fill="#e1f5fe" stroke="#2196f3" stroke-width="2"/>
+        <text x="300" y="265" font-family="Arial" font-size="14" text-anchor="middle">Input Embeddings</text>
+
+        <path d="M 300 280 L 300 300" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+        <rect x="220" y="310" width="160" height="40" rx="5" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
+        <text x="300" y="335" font-family="Arial" font-size="14" text-anchor="middle">Multi-Head Attention</text>
+
+        <path d="M 300 350 L 300 370" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+        <rect x="220" y="380" width="160" height="40" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+        <text x="300" y="405" font-family="Arial" font-size="14" text-anchor="middle">Feed-Forward Network</text>
+
+        <text x="300" y="440" font-family="Arial" font-size="12" text-anchor="middle" fill="#666" font-style="italic">× 12 layers in GPT-2</text>
+    </svg>
+    <div class="diagram-caption">Figure 1.1: RNN vs Transformer architecture comparison</div>
+</div>
+
+<h3>What We're Exploring</h3>
+
+<p>The <strong>Transformer Explainer</strong> is a web-based visualization that runs a real GPT-2 model in your browser. It's not a simulation or approximation—it's the actual model, making actual predictions, with every internal computation visible.</p>
+
+<div class="architecture">
+User types: "Data visualization empowers users to"
+<div class="flow-arrow">↓</div>
+Model processes through 12 transformer blocks
+<div class="flow-arrow">↓</div>
+Visualizes: embeddings, attention patterns, MLP transformations
+<div class="flow-arrow">↓</div>
+Predicts next token: "explore" (or "understand", "analyze"...)
+</div>
+
+<h2>From Attention to Generation</h2>
+
+<p>The core insight of Transformers is <strong>attention</strong>: the ability to weigh the importance of different parts of the input when processing each token.</p>
+
+<h3>Example: Understanding Context</h3>
+
+<p>Consider the sentence: "The bank was steep, so we couldn't fish from it."</p>
+
+<ul>
+    <li><strong>"bank"</strong> could mean:
+        <ul>
+            <li>Financial institution</li>
+            <li>River's edge</li>
+        </ul>
+    </li>
+</ul>
+
+<p>The model uses <strong>attention</strong> to look at surrounding words:</p>
+<ul>
+    <li>"steep" → suggests geographical feature</li>
+    <li>"fish" → confirms it's a riverbank</li>
+    <li>"from it" → spatial relationship</li>
+</ul>
+
+<p>The attention mechanism learns these relationships without being explicitly programmed.</p>
+
+<div class="callout experiment">
+    <h4>🔬 Experiment 1: Your First Inference</h4>
+    <p>Open the Transformer Explainer and try this:</p>
+    <ol>
+        <li><strong>Input:</strong> "The cat sat on the"</li>
+        <li><strong>Observe:</strong>
+            <ul>
+                <li>How many tokens is this?</li>
+                <li>What does the model predict?</li>
+                <li>Look at the attention patterns - which words attend to which?</li>
+            </ul>
+        </li>
+        <li><strong>Change it:</strong> "The spaceship approached the"</li>
+        <li><strong>Compare:</strong>
+            <ul>
+                <li>Did the attention patterns change?</li>
+                <li>Why might the predictions differ?</li>
+            </ul>
+        </li>
+    </ol>
+</div>
+
+<h2>Why Visualizing Matters</h2>
+
+<p>You could read dozens of papers about Transformers and still not truly understand how they work. The Transformer Explainer lets you <strong>see</strong> the process:</p>
+
+<ul>
+    <li><strong>Watch</strong> attention patterns form</li>
+    <li><strong>Observe</strong> how representations transform through layers</li>
+    <li><strong>Experiment</strong> with different inputs and see how predictions change</li>
+    <li><strong>Understand</strong> why the model makes certain predictions</li>
+</ul>
+
+<h3>The Gap Between Theory and Practice</h3>
+
+<p><em>Reading about attention:</em></p>
+<blockquote>
+"The attention mechanism computes weighted combinations of value vectors based on the similarity between query and key vectors."
+</blockquote>
+
+<p><em>Seeing attention in action:</em></p>
+<blockquote>
+"Oh! When processing 'it', the model is looking back at 'bank' and 'steep' with high attention weights. That's how it understands what 'it' refers to!"
+</blockquote>
+
+<p>This is the difference between knowing and understanding.</p>
+
+<div class="callout reflection">
+    <h4>🤔 Reflection: Seeing vs Understanding</h4>
+    <p>The Transformer Explainer shows you everything the model computes. But does <strong>seeing</strong> the computation mean you <strong>understand</strong> how it works?</p>
+    <p>Consider: You can watch a master pianist play and see every finger movement. Does that mean you understand how they play?</p>
+    <p>This book is about bridging that gap—from observation to understanding.</p>
+</div>
+
+<!-- Chapter 2 -->
+<h1>Chapter 2: The Anatomy of GPT-2</h1>
+
+<h2>Inside the Black Box</h2>
+
+<p>GPT-2 consists of repeating blocks, each containing the same basic components. Understanding one block means understanding the whole model.</p>
+
+<div class="diagram">
+    <svg viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#2c3e50" />
+            </marker>
+        </defs>
+
+        <!-- Input -->
+        <rect x="200" y="20" width="200" height="40" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+        <text x="300" y="45" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Input Tokens</text>
+
+        <path d="M 300 60 L 300 90" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- Embedding -->
+        <rect x="200" y="100" width="200" height="40" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+        <text x="300" y="125" font-family="Arial" font-size="14" text-anchor="middle">Token + Position Embeddings</text>
+
+        <path d="M 300 140 L 300 170" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- Transformer Block -->
+        <rect x="150" y="180" width="300" height="200" rx="10" fill="#f3e5f5" stroke="#9c27b0" stroke-width="3"/>
+        <text x="300" y="205" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Transformer Block × 12</text>
+
+        <!-- LayerNorm + Attention -->
+        <rect x="170" y="220" width="260" height="30" rx="5" fill="#e1f5fe" stroke="#03a9f4" stroke-width="2"/>
+        <text x="300" y="240" font-family="Arial" font-size="12" text-anchor="middle">LayerNorm + Multi-Head Attention</text>
+
+        <!-- Residual Connection -->
+        <path d="M 160 235 Q 120 235 120 270 L 120 305 Q 120 340 160 340" stroke="#e74c3c" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+        <text x="90" y="270" font-family="Arial" font-size="10" fill="#e74c3c">residual</text>
+
+        <!-- LayerNorm + MLP -->
+        <rect x="170" y="270" width="260" height="30" rx="5" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+        <text x="300" y="290" font-family="Arial" font-size="12" text-anchor="middle">LayerNorm + MLP (768→3072→768)</text>
+
+        <!-- Residual Connection -->
+        <path d="M 160 285 Q 480 285 480 320 L 480 340 Q 480 340 440 340" stroke="#e74c3c" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+        <text x="490" y="310" font-family="Arial" font-size="10" fill="#e74c3c">residual</text>
+
+        <!-- Output -->
+        <rect x="170" y="320" width="260" height="30" rx="5" fill="#fff9c4" stroke="#fbc02d" stroke-width="2"/>
+        <text x="300" y="340" font-family="Arial" font-size="12" text-anchor="middle">Block Output</text>
+
+        <path d="M 300 380 L 300 410" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- Final Layer -->
+        <rect x="200" y="420" width="200" height="40" rx="5" fill="#ffebee" stroke="#f44336" stroke-width="2"/>
+        <text x="300" y="440" font-family="Arial" font-size="14" text-anchor="middle">Linear + Softmax</text>
+        <text x="300" y="456" font-family="Arial" font-size="11" text-anchor="middle" fill="#666">(768 → 50,257 vocab)</text>
+
+        <path d="M 300 460 L 300 485" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- Prediction -->
+        <ellipse cx="300" cy="505" rx="80" ry="20" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+        <text x="300" y="510" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Next Token</text>
+    </svg>
+    <div class="diagram-caption">Figure 2.1: Complete GPT-2 architecture flow</div>
+</div>
+
+<h2>Embeddings: Where Words Become Numbers</h2>
+
+<h3>Token Embeddings</h3>
+
+<p>The model starts by converting text into numbers:</p>
+
+<div class="architecture">
+"Data visualization"
+<div class="flow-arrow">↓ (tokenization)</div>
+["Data", " visualization"]
+<div class="flow-arrow">↓ (token IDs)</div>
+[6601, 32704]
+<div class="flow-arrow">↓ (embedding lookup)</div>
+[[0.23, -0.45, 0.67, ...],   ← 768 dimensions
+ [-0.12, 0.89, -0.34, ...]]
+</div>
+
+<p>Each token becomes a 768-dimensional vector. Why 768? It's a balance:</p>
+<ul>
+    <li><strong>Too small</strong> (e.g., 128): Not enough capacity to represent meaning</li>
+    <li><strong>Too large</strong> (e.g., 4096): Computationally expensive, diminishing returns</li>
+    <li><strong>768</strong>: Sweet spot for GPT-2's scale (117M parameters)</li>
+</ul>
+
+<h3>Positional Embeddings</h3>
+
+<p>But there's a problem: these embeddings don't encode <strong>position</strong>.</p>
+
+<div class="callout note">
+    <p><strong>Example:</strong> "Dog bites man" vs "Man bites dog"</p>
+    <p>Same words, different meanings! The model needs to know <strong>where</strong> each word appears.</p>
+</div>
+
+<p><strong>Solution: Positional Embeddings</strong></p>
+
+<pre><code># Simplified model code
+tok_emb = token_embedding_table[token_ids]  # Word meanings
+pos_emb = position_embedding_table[positions]  # Positions
+input_emb = tok_emb + pos_emb  # Combined representation</code></pre>
+
+<p>Now "Dog" at position 0 has a different representation than "Dog" at position 2.</p>
+
+<h2>The Attention Mechanism: How Models "Think"</h2>
+
+<p>Attention is where the magic happens.</p>
+
+<h3>The Core Idea</h3>
+
+<p>When processing each word, the model asks: <strong>"Which other words should I pay attention to?"</strong></p>
+
+<p><strong>Example:</strong> "The trophy doesn't fit in the suitcase because it is too large."</p>
+
+<p>When processing <strong>"it"</strong>:</p>
+<ul>
+    <li>High attention to "trophy" (likely referring to trophy)</li>
+    <li>Lower attention to "suitcase"</li>
+    <li>Attention weights determine the interpretation</li>
+</ul>
+
+<h3>Query, Key, Value (QKV)</h3>
+
+<p>The attention mechanism uses three transformations:</p>
+
+<table>
+    <tr>
+        <th>Component</th>
+        <th>Purpose</th>
+        <th>Question</th>
+    </tr>
+    <tr>
+        <td><strong>Query (Q)</strong></td>
+        <td>What to look for</td>
+        <td>"What am I looking for?"</td>
+    </tr>
+    <tr>
+        <td><strong>Key (K)</strong></td>
+        <td>What content is offered</td>
+        <td>"What do I contain?"</td>
+    </tr>
+    <tr>
+        <td><strong>Value (V)</strong></td>
+        <td>Actual information</td>
+        <td>"What information do I have?"</td>
+    </tr>
+</table>
+
+<h3>The Attention Calculation</h3>
+
+<p>The mathematical formulation of attention:</p>
+
+<div class="equation">
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+</div>
+
+<p>Breaking it down:</p>
+
+<ol>
+    <li><strong>Compute attention scores:</strong> \(QK^T\) (how well query matches each key)</li>
+    <li><strong>Scale:</strong> Divide by \(\sqrt{d_k}\) (prevents saturation)</li>
+    <li><strong>Apply causal mask:</strong> Can't see future tokens</li>
+    <li><strong>Convert to probabilities:</strong> Softmax</li>
+    <li><strong>Weighted combination:</strong> Multiply by values</li>
+</ol>
+
+<pre><code># Attention computation
+scores = Query @ Key.T / sqrt(head_dimension)
+
+# Apply causal mask (can't see future tokens)
+masked_scores = apply_mask(scores)
+
+# Convert to probabilities
+attention_weights = softmax(masked_scores)
+
+# Weighted combination of values
+output = attention_weights @ Value</code></pre>
+
+<div class="diagram">
+    <svg viewBox="0 0 500 350" xmlns="http://www.w3.org/2000/svg">
+        <!-- Attention Matrix Visualization -->
+        <text x="250" y="25" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Attention Pattern Example</text>
+
+        <!-- Matrix grid -->
+        <g id="matrix">
+            <!-- Labels -->
+            <text x="50" y="75" font-family="Arial" font-size="11" fill="#666">The</text>
+            <text x="50" y="115" font-family="Arial" font-size="11" fill="#666">cat</text>
+            <text x="50" y="155" font-family="Arial" font-size="11" fill="#666">sat</text>
+            <text x="50" y="195" font-family="Arial" font-size="11" fill="#666">on</text>
+            <text x="50" y="235" font-family="Arial" font-size="11" fill="#666">the</text>
+            <text x="50" y="275" font-family="Arial" font-size="11" fill="#666">mat</text>
+
+            <text x="120" y="50" font-family="Arial" font-size="11" fill="#666">The</text>
+            <text x="160" y="50" font-family="Arial" font-size="11" fill="#666">cat</text>
+            <text x="200" y="50" font-family="Arial" font-size="11" fill="#666">sat</text>
+            <text x="240" y="50" font-family="Arial" font-size="11" fill="#666">on</text>
+            <text x="280" y="50" font-family="Arial" font-size="11" fill="#666">the</text>
+            <text x="320" y="50" font-family="Arial" font-size="11" fill="#666">mat</text>
+
+            <!-- Attention cells (causal mask - lower triangle) -->
+            <!-- Row 1: The -->
+            <rect x="100" y="60" width="35" height="35" fill="#1a237e" opacity="0.9"/>
+
+            <!-- Row 2: cat -->
+            <rect x="100" y="100" width="35" height="35" fill="#283593" opacity="0.7"/>
+            <rect x="140" y="100" width="35" height="35" fill="#1a237e" opacity="0.9"/>
+
+            <!-- Row 3: sat -->
+            <rect x="100" y="140" width="35" height="35" fill="#3949ab" opacity="0.5"/>
+            <rect x="140" y="140" width="35" height="35" fill="#283593" opacity="0.7"/>
+            <rect x="180" y="140" width="35" height="35" fill="#1a237e" opacity="0.9"/>
+
+            <!-- Row 4: on -->
+            <rect x="100" y="180" width="35" height="35" fill="#5c6bc0" opacity="0.3"/>
+            <rect x="140" y="180" width="35" height="35" fill="#3949ab" opacity="0.5"/>
+            <rect x="180" y="180" width="35" height="35" fill="#283593" opacity="0.7"/>
+            <rect x="220" y="180" width="35" height="35" fill="#1a237e" opacity="0.9"/>
+
+            <!-- Row 5: the -->
+            <rect x="100" y="220" width="35" height="35" fill="#7986cb" opacity="0.2"/>
+            <rect x="140" y="220" width="35" height="35" fill="#5c6bc0" opacity="0.3"/>
+            <rect x="180" y="220" width="35" height="35" fill="#3949ab" opacity="0.5"/>
+            <rect x="220" y="220" width="35" height="35" fill="#283593" opacity="0.7"/>
+            <rect x="260" y="220" width="35" height="35" fill="#1a237e" opacity="0.9"/>
+
+            <!-- Row 6: mat -->
+            <rect x="100" y="260" width="35" height="35" fill="#9fa8da" opacity="0.2"/>
+            <rect x="140" y="260" width="35" height="35" fill="#7986cb" opacity="0.3"/>
+            <rect x="180" y="260" width="35" height="35" fill="#5c6bc0" opacity="0.4"/>
+            <rect x="220" y="260" width="35" height="35" fill="#3949ab" opacity="0.5"/>
+            <rect x="260" y="260" width="35" height="35" fill="#283593" opacity="0.7"/>
+            <rect x="300" y="260" width="35" height="35" fill="#1a237e" opacity="0.9"/>
+        </g>
+
+        <!-- Legend -->
+        <rect x="380" y="100" width="100" height="15" fill="#1a237e" opacity="0.9"/>
+        <text x="375" y="112" font-family="Arial" font-size="10" text-anchor="end">High attention</text>
+
+        <rect x="380" y="130" width="100" height="15" fill="#7986cb" opacity="0.3"/>
+        <text x="375" y="142" font-family="Arial" font-size="10" text-anchor="end">Low attention</text>
+
+        <text x="250" y="320" font-family="Arial" font-size="11" text-anchor="middle" fill="#666" font-style="italic">
+            Each token can only attend to previous tokens (causal masking)
+        </text>
+    </svg>
+    <div class="diagram-caption">Figure 2.2: Attention matrix showing causal masking pattern</div>
+</div>
+
+<h3>Multi-Head Attention</h3>
+
+<p>GPT-2 doesn't use just one attention mechanism—it uses <strong>12 heads</strong> simultaneously.</p>
+
+<div class="equation">
+$$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_{12})W^O$$
+</div>
+
+<p>where each head operates on a different subspace:</p>
+
+<div class="equation">
+$$\text{head}_i = \text{Attention}(QW^Q_i, KW^K_i, VW^V_i)$$
+</div>
+
+<table>
+    <tr>
+        <th>Head</th>
+        <th>Might Focus On</th>
+    </tr>
+    <tr>
+        <td>Head 1</td>
+        <td>Grammatical relationships (subject-verb agreement)</td>
+    </tr>
+    <tr>
+        <td>Head 2</td>
+        <td>Semantic similarity (synonyms, related concepts)</td>
+    </tr>
+    <tr>
+        <td>Head 3</td>
+        <td>Co-reference (pronouns → nouns)</td>
+    </tr>
+    <tr>
+        <td>Head 4-12</td>
+        <td>Various other patterns discovered during training</td>
+    </tr>
+</table>
+
+<p><strong>Why 12 heads?</strong></p>
+<ul>
+    <li>Total dimension: 768</li>
+    <li>Per head: 768 ÷ 12 = <strong>64 dimensions</strong></li>
+    <li>64 is a power of 2 (efficient for GPUs)</li>
+    <li>12 heads allow diverse patterns to be learned</li>
+    <li>Not too few (limited perspective) or too many (redundancy)</li>
+</ul>
+
+<h2>MLP Layers: The Hidden Transformation</h2>
+
+<p>After attention, each token goes through an <strong>MLP (Multi-Layer Perceptron)</strong>.</p>
+
+<div class="equation">
+$$\text{MLP}(x) = \text{GELU}(xW_1 + b_1)W_2 + b_2$$
+</div>
+
+<p>Where:</p>
+<ul>
+    <li>\(W_1\): Linear layer 1 (768 → 3072)</li>
+    <li>GELU: Gaussian Error Linear Unit activation</li>
+    <li>\(W_2\): Linear layer 2 (3072 → 768)</li>
+</ul>
+
+<div class="architecture">
+Input (768 dims)
+<div class="flow-arrow">↓</div>
+Linear Layer 1: 768 → 3072  (expand 4×)
+<div class="flow-arrow">↓</div>
+GELU Activation
+<div class="flow-arrow">↓</div>
+Linear Layer 2: 3072 → 768  (compress back)
+<div class="flow-arrow">↓</div>
+Output (768 dims)
+</div>
+
+<h3>Why Expand 4×?</h3>
+
+<p>This expansion creates a "bottleneck" architecture:</p>
+<ol>
+    <li><strong>Expand:</strong> Create a rich, high-dimensional representation (3072 dims)</li>
+    <li><strong>Activate:</strong> Introduce non-linearity (GELU)</li>
+    <li><strong>Compress:</strong> Distill back to 768 dimensions</li>
+</ol>
+
+<h3>GELU Activation</h3>
+
+<p>Not ReLU, but <strong>GELU</strong> (Gaussian Error Linear Unit):</p>
+
+<div class="equation">
+$$\text{GELU}(x) = x \cdot \Phi(x)$$
+</div>
+
+<p>where \(\Phi(x)\) is the cumulative distribution function of the standard normal distribution.</p>
+
+<div class="diagram">
+    <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Activation Functions Comparison -->
+        <text x="250" y="25" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Activation Functions: ReLU vs GELU</text>
+
+        <!-- Axes -->
+        <line x1="50" y1="150" x2="450" y2="150" stroke="#999" stroke-width="1"/>
+        <line x1="250" y1="50" x2="250" y2="250" stroke="#999" stroke-width="1"/>
+
+        <text x="440" y="170" font-family="Arial" font-size="12" fill="#666">x</text>
+        <text x="260" y="60" font-family="Arial" font-size="12" fill="#666">f(x)</text>
+
+        <!-- ReLU (blue) -->
+        <path d="M 50 150 L 250 150 L 450 50" stroke="#2196f3" stroke-width="3" fill="none"/>
+        <text x="380" y="80" font-family="Arial" font-size="12" fill="#2196f3" font-weight="bold">ReLU</text>
+
+        <!-- GELU (purple) - smooth curve -->
+        <path d="M 50 150 Q 200 145 250 120 T 450 50" stroke="#9c27b0" stroke-width="3" fill="none"/>
+        <text x="380" y="110" font-family="Arial" font-size="12" fill="#9c27b0" font-weight="bold">GELU</text>
+
+        <!-- Grid lines -->
+        <line x1="150" y1="145" x2="150" y2="155" stroke="#999" stroke-width="1"/>
+        <line x1="350" y1="145" x2="350" y2="155" stroke="#999" stroke-width="1"/>
+        <line x1="245" y1="100" x2="255" y2="100" stroke="#999" stroke-width="1"/>
+        <line x1="245" y1="200" x2="255" y2="200" stroke="#999" stroke-width="1"/>
+
+        <text x="80" y="280" font-family="Arial" font-size="11" fill="#666" font-style="italic">
+            GELU is smoother than ReLU, works better for language models
+        </text>
+    </svg>
+    <div class="diagram-caption">Figure 2.3: Comparison of ReLU and GELU activation functions</div>
+</div>
+
+<h2>Layer Normalization and Residual Connections</h2>
+
+<p>Two critical stabilization techniques make deep networks trainable:</p>
+
+<h3>Layer Normalization</h3>
+
+<p>Normalize inputs before each major operation:</p>
+
+<div class="equation">
+$$\text{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sigma} + \beta$$
+</div>
+
+<p>where:</p>
+<ul>
+    <li>\(\mu\) = mean of input</li>
+    <li>\(\sigma\) = standard deviation of input</li>
+    <li>\(\gamma\), \(\beta\) = learned scale and shift parameters</li>
+</ul>
+
+<p><strong>Why?</strong> Prevents activations from exploding or vanishing during training.</p>
+
+<h3>Residual Connections</h3>
+
+<p>The <strong>skip connections</strong> that make deep networks trainable:</p>
+
+<div class="equation">
+\begin{align}
+x &= x + \text{Attention}(\text{LayerNorm}(x)) \\
+x &= x + \text{MLP}(\text{LayerNorm}(x))
+\end{align}
+</div>
+
+<p>This allows gradients to flow backward through the network during training.</p>
+
+<div class="diagram">
+    <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Residual Connection Diagram -->
+        <defs>
+            <marker id="arrowblack" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#333" />
+            </marker>
+        </defs>
+
+        <text x="200" y="25" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Residual Connection</text>
+
+        <!-- Input -->
+        <rect x="150" y="50" width="100" height="30" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+        <text x="200" y="70" font-family="Arial" font-size="12" text-anchor="middle">Input x</text>
+
+        <!-- Main path -->
+        <path d="M 200 80 L 200 110" stroke="#333" stroke-width="2" marker-end="url(#arrowblack)"/>
+
+        <rect x="150" y="120" width="100" height="30" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+        <text x="200" y="140" font-family="Arial" font-size="12" text-anchor="middle">LayerNorm</text>
+
+        <path d="M 200 150 L 200 180" stroke="#333" stroke-width="2" marker-end="url(#arrowblack)"/>
+
+        <rect x="150" y="190" width="100" height="30" rx="5" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
+        <text x="200" y="210" font-family="Arial" font-size="12" text-anchor="middle">Attention/MLP</text>
+
+        <path d="M 200 220 L 200 240" stroke="#333" stroke-width="2" marker-end="url(#arrowblack)"/>
+
+        <!-- Skip connection -->
+        <path d="M 100 65 L 100 250 L 170 250" stroke="#e74c3c" stroke-width="3" fill="none" stroke-dasharray="5,5" marker-end="url(#arrowblack)"/>
+        <text x="70" y="150" font-family="Arial" font-size="12" fill="#e74c3c" font-weight="bold">Skip</text>
+
+        <!-- Addition -->
+        <circle cx="200" cy="250" r="20" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+        <text x="200" y="257" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold">+</text>
+
+        <path d="M 200 270 L 200 290" stroke="#333" stroke-width="2" marker-end="url(#arrowblack)"/>
+
+        <!-- Output -->
+        <rect x="150" y="295" width="100" height="30" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+        <text x="200" y="315" font-family="Arial" font-size="12" text-anchor="middle">Output x'</text>
+    </svg>
+    <div class="diagram-caption">Figure 2.4: Residual connection allowing gradient flow</div>
+</div>
+
+<h2>From Logits to Tokens: The Final Prediction</h2>
+
+<p>After 12 transformer blocks, we need to convert hidden states to predictions:</p>
+
+<div class="architecture">
+Final hidden state (768 dims)
+<div class="flow-arrow">↓</div>
+Linear projection: 768 → 50,257 (vocabulary size)
+<div class="flow-arrow">↓</div>
+Logits (raw scores for each possible next token)
+<div class="flow-arrow">↓</div>
+Softmax (convert to probabilities)
+<div class="flow-arrow">↓</div>
+Sampling (pick a token)
+</div>
+
+<h3>The Softmax Function</h3>
+
+<div class="equation">
+$$P(w_i) = \frac{e^{z_i / T}}{\sum_{j=1}^{V} e^{z_j / T}}$$
+</div>
+
+<p>where:</p>
+<ul>
+    <li>\(z_i\) = logit for token \(i\)</li>
+    <li>\(T\) = temperature parameter</li>
+    <li>\(V\) = vocabulary size (50,257)</li>
+</ul>
+
+<h3>Temperature and Sampling</h3>
+
+<p><strong>Temperature</strong> controls randomness:</p>
+
+<table>
+    <tr>
+        <th>Temperature</th>
+        <th>Effect</th>
+        <th>Use Case</th>
+    </tr>
+    <tr>
+        <td>T = 0.1</td>
+        <td>Nearly deterministic</td>
+        <td>Factual tasks, code generation</td>
+    </tr>
+    <tr>
+        <td>T = 0.8</td>
+        <td>Balanced (default)</td>
+        <td>General text generation</td>
+    </tr>
+    <tr>
+        <td>T = 1.5</td>
+        <td>Very creative</td>
+        <td>Creative writing, brainstorming</td>
+    </tr>
+</table>
+
+<div class="callout experiment">
+    <h4>🔬 Experiment 2: Attention Patterns</h4>
+    <p>In the visualization:</p>
+    <ol>
+        <li>Input: "The cat sat on the mat"</li>
+        <li>Click on "Multi-head Self Attention"</li>
+        <li>Observe the attention matrix</li>
+        <li>Try different heads (1-12) using the arrows</li>
+    </ol>
+    <p><strong>Questions:</strong></p>
+    <ul>
+        <li>Which tokens does "mat" attend to most strongly?</li>
+        <li>Do different heads show different patterns?</li>
+        <li>What happens when you change the input?</li>
+    </ul>
+</div>
+
+<div class="callout reflection">
+    <h4>🤔 Reflection: The Illusion of Understanding</h4>
+    <p>You can now trace every computation from input to output. You've seen embeddings, attention weights, MLP transformations, and final probabilities.</p>
+    <p><strong>But do we understand why "the cat sat on the ___" predicts "mat"?</strong></p>
+    <p>The model has learned statistical patterns from billions of words. It's not "reasoning" about cats or furniture—it's recognizing patterns.</p>
+    <p>Is this understanding? Or sophisticated pattern matching?</p>
+</div>
+
+<!-- Interlude I -->
+<h1>Interlude I: On Understanding</h1>
+
+<blockquote style="text-align: center; font-size: 1.2em; margin: 40px 0;">
+"The real cycle you're working on is a cycle called yourself."<br>
+— Robert M. Pirsig
+</blockquote>
+
+<h2>Can We Truly "See" How Models Think?</h2>
+
+<p>The Transformer Explainer shows you everything:</p>
+<ul>
+    <li>Every embedding vector</li>
+    <li>Every attention weight</li>
+    <li>Every neuron activation</li>
+    <li>Every probability calculation</li>
+</ul>
+
+<p>You can <strong>see</strong> the computation. But do you <strong>understand</strong> it?</p>
+
+<h2>The Visualization Paradox</h2>
+
+<h3>What We Can See</h3>
+
+<div class="architecture">
+Input: "The cat sat on the mat"
+<div class="flow-arrow">↓</div>
+Embedding layer: [0.23, -0.45, 0.67, ..., 0.12]
+<div class="flow-arrow">↓</div>
+Attention weights: [[0.1, 0.3, 0.05, ...], ...]
+<div class="flow-arrow">↓</div>
+MLP transformation: [0.45, -0.12, 0.89, ..., -0.34]
+<div class="flow-arrow">↓</div>
+Output probabilities: {"mat": 0.32, "floor": 0.18, ...}
+</div>
+
+<p>We see <strong>every number</strong>.</p>
+
+<h3>What We Don't Understand</h3>
+
+<ul>
+    <li><strong>Why</strong> does neuron 423 in layer 7 activate to 0.89 for "cat" but -0.12 for "dog"?</li>
+    <li><strong>Why</strong> does attention head 5 attend strongly to "the" when processing "mat"?</li>
+    <li><strong>What concept</strong> does the 67th dimension of the embedding space represent?</li>
+</ul>
+
+<h2>Levels of Understanding</h2>
+
+<table>
+    <tr>
+        <th>Level</th>
+        <th>Type</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Observing</td>
+        <td>"I can see the attention weights."</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Describing</td>
+        <td>"High attention weights connect 'mat' to 'the' and 'cat'."</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>Predicting</td>
+        <td>"If I change 'cat' to 'dog', attention patterns will shift but structure remains."</td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>Explaining</td>
+        <td>"Attention connects words based on syntactic/semantic relationships."</td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>Understanding?</td>
+        <td>"I comprehend why this architecture discovers these patterns."</td>
+    </tr>
+</table>
+
+<p>Do we ever reach true understanding? Or just increasingly sophisticated descriptions?</p>
+
+<h2>The Analogy to Pirsig's Motorcycle</h2>
+
+<p>Pirsig distinguishes between two approaches to his motorcycle:</p>
+
+<table>
+    <tr>
+        <th>Classical Understanding</th>
+        <th>Romantic Understanding</th>
+    </tr>
+    <tr>
+        <td>Know the mechanics</td>
+        <td>Appreciate the experience</td>
+    </tr>
+    <tr>
+        <td>Understand how each part works</td>
+        <td>Enjoy the ride</td>
+    </tr>
+    <tr>
+        <td>Can repair and maintain it</td>
+        <td>Feel connected to it</td>
+    </tr>
+</table>
+
+<p><strong>The Transformer Explainer offers classical understanding:</strong></p>
+<ul>
+    <li>See the mechanics</li>
+    <li>Trace each computation</li>
+    <li>Debug and modify</li>
+</ul>
+
+<p><strong>But are we missing romantic understanding?</strong></p>
+<ul>
+    <li>What it <em>means</em> to generate language</li>
+    <li>The emergent beauty of learned patterns</li>
+    <li>The mystery of how meaning arises from math</li>
+</ul>
+
+<h2>The Limits of Visualization</h2>
+
+<h3>What Visualization Gives Us</h3>
+
+<ol>
+    <li><strong>Transparency:</strong> See inside the black box</li>
+    <li><strong>Intuition:</strong> Build mental models</li>
+    <li><strong>Debugging:</strong> Find what went wrong</li>
+    <li><strong>Learning:</strong> Understand the mechanisms</li>
+</ol>
+
+<h3>What Visualization Cannot Give Us</h3>
+
+<ol>
+    <li><strong>Causality:</strong> Why THIS pattern, not another?</li>
+    <li><strong>Semantics:</strong> What do the numbers <em>mean</em>?</li>
+    <li><strong>Emergence:</strong> How does intelligence arise from this?</li>
+    <li><strong>Purpose:</strong> What is the model "trying" to do?</li>
+</ol>
+
+<h2>Levels of Transparency</h2>
+
+<div class="diagram">
+    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <!-- Transparency Levels -->
+        <text x="300" y="30" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle">Levels of AI Transparency</text>
+
+        <!-- Level 1: Black Box -->
+        <rect x="50" y="60" width="500" height="60" rx="5" fill="#212121" stroke="#666" stroke-width="2"/>
+        <text x="300" y="85" font-family="Arial" font-size="14" fill="white" text-anchor="middle" font-weight="bold">1. Black Box (Most AI Today)</text>
+        <text x="300" y="105" font-family="monospace" font-size="12" fill="#999" text-anchor="middle">Input → [???????] → Output</text>
+
+        <!-- Level 2: I/O Transparency -->
+        <rect x="50" y="140" width="500" height="60" rx="5" fill="#424242" stroke="#666" stroke-width="2"/>
+        <text x="300" y="165" font-family="Arial" font-size="14" fill="white" text-anchor="middle" font-weight="bold">2. Input/Output Transparency (APIs)</text>
+        <text x="300" y="185" font-family="monospace" font-size="11" fill="#999" text-anchor="middle">Input: "The cat" → Output: "sat" (92%)</text>
+
+        <!-- Level 3: Mechanistic -->
+        <rect x="50" y="220" width="500" height="60" rx="5" fill="#667eea" stroke="#4a5dc7" stroke-width="2"/>
+        <text x="300" y="245" font-family="Arial" font-size="14" fill="white" text-anchor="middle" font-weight="bold">3. Mechanistic Transparency (Transformer Explainer)</text>
+        <text x="300" y="265" font-family="monospace" font-size="11" fill="white" text-anchor="middle">Input → Embeddings → Attention → MLP → Output</text>
+
+        <!-- Level 4: Conceptual -->
+        <rect x="50" y="300" width="500" height="60" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+        <text x="300" y="325" font-family="Arial" font-size="14" fill="#2c3e50" text-anchor="middle" font-weight="bold">4. Conceptual Transparency (Still Elusive)</text>
+        <text x="300" y="345" font-family="monospace" font-size="11" fill="#666" text-anchor="middle">[understands: animals, furniture] → infers: "mat"</text>
+
+        <!-- Arrow showing progress -->
+        <text x="570" y="190" font-family="Arial" font-size="24" fill="#4caf50">↑</text>
+        <text x="575" y="210" font-family="Arial" font-size="10" fill="#666">We are</text>
+        <text x="575" y="222" font-family="Arial" font-size="10" fill="#666">here</text>
+    </svg>
+    <div class="diagram-caption">Figure I.1: The spectrum of AI transparency</div>
+</div>
+
+<h2>The Practical Impact</h2>
+
+<p>Even without complete understanding, visualization helps:</p>
+
+<h3>Real Benefits</h3>
+
+<ol>
+    <li><strong>Debugging:</strong> Find why a model fails</li>
+    <li><strong>Trust:</strong> See what a model considers</li>
+    <li><strong>Education:</strong> Learn how transformers work</li>
+    <li><strong>Improvement:</strong> Identify bottlenecks and issues</li>
+</ol>
+
+<h3>Remaining Mysteries</h3>
+
+<ol>
+    <li>Why this architecture works so well</li>
+    <li>What representations emerge and why</li>
+    <li>How semantic meaning arises</li>
+    <li>Whether models "understand" anything</li>
+</ol>
+
+<h2>A Different Kind of Understanding</h2>
+
+<p>Perhaps we need to accept: <strong>Understanding AI is different from understanding mathematics or mechanics.</strong></p>
+
+<table>
+    <tr>
+        <th>Domain</th>
+        <th>Understanding Type</th>
+    </tr>
+    <tr>
+        <td><strong>Mathematics</strong><br>\(\int x^2 dx = \frac{x^3}{3} + C\)</td>
+        <td>Complete, proof-based knowledge</td>
+    </tr>
+    <tr>
+        <td><strong>Mechanics</strong><br>\(F = ma\)</td>
+        <td>Thorough, physics-based knowledge</td>
+    </tr>
+    <tr>
+        <td><strong>Neural Networks</strong><br>\(\text{Output} = \sigma(W_{12}\sigma(W_{11}\sigma(...\sigma(W_0x))))\)</td>
+        <td>Mechanistic but not semantic</td>
+    </tr>
+</table>
+
+<p>We understand the <strong>mechanism</strong> but not the <strong>meaning</strong>.</p>
+
+<p>Maybe that's okay.</p>
+
+<h2>The Zen Perspective</h2>
+
+<p>Zen Buddhism suggests some things are understood through <strong>direct experience</strong>, not intellectual analysis.</p>
+
+<p><strong>Applied to transformers:</strong></p>
+<ul>
+    <li>You can study the math (intellectual)</li>
+    <li>You can trace the computation (analytical)</li>
+    <li>You can <em>use</em> the model (experiential)</li>
+</ul>
+
+<p><strong>Perhaps true understanding comes from all three:</strong></p>
+<ol>
+    <li>Study the theory</li>
+    <li>Observe the visualization</li>
+    <li>Experiment and interact</li>
+</ol>
+
+<div class="callout reflection">
+    <h4>Reflection Question</h4>
+    <p>After seeing every computation in the Transformer Explainer, do you feel you <strong>understand</strong> how GPT-2 works?</p>
+    <p>If yes—what do you understand?</p>
+    <p>If no—what's missing?</p>
+    <p><strong>There are no wrong answers. Just different kinds of understanding.</strong></p>
+</div>
+
+<blockquote style="text-align: center; font-size: 1.2em; margin: 40px 0;">
+"The only Zen you can find on the tops of mountains is the Zen you bring up there."<br>
+— Robert M. Pirsig
+</blockquote>
+
+<!-- Chapter 8 -->
+<h1>Chapter 8: Mixture of Experts</h1>
+
+<h2>The Scalability Problem</h2>
+
+<p>By 2023, there was a problem: making models bigger was getting expensive.</p>
+
+<table>
+    <tr>
+        <th>Model</th>
+        <th>Parameters</th>
+        <th>Relative Cost</th>
+    </tr>
+    <tr>
+        <td>GPT-2</td>
+        <td>117M</td>
+        <td>$X</td>
+    </tr>
+    <tr>
+        <td>GPT-3</td>
+        <td>175B</td>
+        <td>$1500X</td>
+    </tr>
+    <tr>
+        <td>GPT-4</td>
+        <td>???B</td>
+        <td>$????</td>
+    </tr>
+</table>
+
+<p>Bigger models performed better, but the cost scaled linearly (or worse) with size.</p>
+
+<p><strong>Enter Mixture of Experts (MoE):</strong> What if we could have the capacity of a huge model, but only activate a fraction of it for each token?</p>
+
+<h2>The Core Insight</h2>
+
+<p>Instead of one giant MLP that processes every token:</p>
+
+<div class="architecture">
+<strong>Traditional (Dense):</strong>
+Every token → Same MLP (3072 params) → Output
+
+All tokens use ALL parameters
+</div>
+
+<p>Use multiple specialized MLPs and route tokens to the right ones:</p>
+
+<div class="architecture">
+<strong>Mixture of Experts:</strong>
+Token 1 → Router → Expert 2, Expert 7 → Combine → Output
+Token 2 → Router → Expert 1, Expert 4 → Combine → Output
+Token 3 → Router → Expert 2, Expert 3 → Combine → Output
+
+Each token uses 2 of 8 experts (sparse activation)
+</div>
+
+<h2>Architecture Comparison</h2>
+
+<div class="diagram">
+    <svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="arrowmoe" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#2c3e50" />
+            </marker>
+        </defs>
+
+        <!-- Dense Transformer -->
+        <text x="120" y="30" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">Dense (GPT-2)</text>
+
+        <rect x="50" y="50" width="140" height="40" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+        <text x="120" y="75" font-family="Arial" font-size="12" text-anchor="middle">Self-Attention</text>
+
+        <path d="M 120 90 L 120 110" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowmoe)"/>
+
+        <rect x="50" y="120" width="140" height="60" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+        <text x="120" y="145" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">Dense MLP</text>
+        <text x="120" y="160" font-family="Arial" font-size="10" text-anchor="middle">768 → 3072 → 768</text>
+        <text x="120" y="173" font-family="Arial" font-size="9" text-anchor="middle" fill="#666">ALL tokens use this</text>
+
+        <!-- MoE Transformer -->
+        <text x="500" y="30" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle">MoE (Mixtral)</text>
+
+        <rect x="430" y="50" width="140" height="40" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+        <text x="500" y="75" font-family="Arial" font-size="12" text-anchor="middle">Self-Attention</text>
+
+        <path d="M 500 90 L 500 110" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowmoe)"/>
+
+        <!-- Router -->
+        <rect x="430" y="120" width="140" height="30" rx="5" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
+        <text x="500" y="140" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">Router/Gate</text>
+
+        <!-- Expert connections -->
+        <path d="M 450 150 L 420 180" stroke="#9c27b0" stroke-width="1.5"/>
+        <path d="M 470 150 L 460 180" stroke="#9c27b0" stroke-width="1.5"/>
+        <path d="M 490 150 L 500 180" stroke="#9c27b0" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <path d="M 510 150 L 540 180" stroke="#9c27b0" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <path d="M 530 150 L 580 180" stroke="#9c27b0" stroke-width="1.5"/>
+        <path d="M 550 150 L 620 180" stroke="#9c27b0" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+        <!-- Experts -->
+        <g id="experts">
+            <circle cx="420" cy="200" r="15" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+            <text x="420" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="white">E1</text>
+
+            <circle cx="460" cy="200" r="15" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+            <text x="460" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="white">E2</text>
+
+            <circle cx="500" cy="200" r="15" fill="#ddd" stroke="#999" stroke-width="2"/>
+            <text x="500" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="#666">E3</text>
+
+            <circle cx="540" cy="200" r="15" fill="#ddd" stroke="#999" stroke-width="2"/>
+            <text x="540" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="#666">E4</text>
+
+            <circle cx="580" cy="200" r="15" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+            <text x="580" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="white">E5</text>
+
+            <text x="620" y="205" font-family="Arial" font-size="12" text-anchor="middle" fill="#666">...</text>
+        </g>
+
+        <text x="500" y="235" font-family="Arial" font-size="9" text-anchor="middle" fill="#666">Top-2 experts selected per token</text>
+
+        <!-- Legend -->
+        <circle cx="470" cy="270" r="10" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+        <text x="490" y="275" font-family="Arial" font-size="10" fill="#666">Active (selected)</text>
+
+        <circle cx="470" cy="295" r="10" fill="#ddd" stroke="#999" stroke-width="2"/>
+        <text x="490" y="300" font-family="Arial" font-size="10" fill="#666">Inactive</text>
+
+        <!-- Efficiency note -->
+        <rect x="250" y="320" width="200" height="60" rx="5" fill="#fff9c4" stroke="#f57f17" stroke-width="2"/>
+        <text x="350" y="340" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">Efficiency Gain</text>
+        <text x="350" y="357" font-family="Arial" font-size="10" text-anchor="middle">Dense: Use 100% of params</text>
+        <text x="350" y="372" font-family="Arial" font-size="10" text-anchor="middle">MoE: Use ~25% of params</text>
+    </svg>
+    <div class="diagram-caption">Figure 8.1: Dense vs Mixture of Experts architecture</div>
+</div>
+
+<h2>The Router: A Trained Neural Network</h2>
+
+<p>The router isn't hardcoded—it's a <strong>small neural network that learns</strong> which experts to use.</p>
+
+<pre><code>class Router(nn.Module):
+    def __init__(self, input_dim=768, num_experts=8):
+        super().__init__()
+        # Just one linear layer!
+        self.gate = nn.Linear(input_dim, num_experts)
+
+    def forward(self, x):
+        # x shape: [batch, seq_len, 768]
+        logits = self.gate(x)           # [batch, seq_len, 8]
+        scores = F.softmax(logits, dim=-1)
+
+        # Select top-2 experts
+        top_k_scores, top_k_indices = torch.topk(scores, k=2)
+
+        return top_k_scores, top_k_indices</code></pre>
+
+<h3>What the Router Learns</h3>
+
+<p>During training, the router discovers patterns:</p>
+
+<table>
+    <tr>
+        <th>Token Type</th>
+        <th>Router Learns to Use</th>
+    </tr>
+    <tr>
+        <td>"def", "function"</td>
+        <td>Expert 2 (code patterns)</td>
+    </tr>
+    <tr>
+        <td>"poetry", "verse"</td>
+        <td>Expert 5 (creative writing)</td>
+    </tr>
+    <tr>
+        <td>"∫", "dx", "="</td>
+        <td>Expert 1 (mathematical notation)</td>
+    </tr>
+    <tr>
+        <td>"the", "is", "a"</td>
+        <td>Expert 3 (common grammar)</td>
+    </tr>
+</table>
+
+<p><strong>These patterns emerge from data, not programming!</strong></p>
+
+<h2>The Math of Sparsity</h2>
+
+<h3>Example: Mixtral 8x7B</h3>
+
+<div class="callout note">
+    <h4>Mixtral Configuration</h4>
+    <ul>
+        <li>8 experts per MoE layer</li>
+        <li>Each expert: 7B parameters</li>
+        <li>Total parameters: 8 × 7B = 56B</li>
+        <li>Top-k routing: k=2 (use 2 experts per token)</li>
+    </ul>
+
+    <p><strong>Computation per token:</strong></p>
+    <ul>
+        <li>Dense 56B model: Use 56B parameters</li>
+        <li>MoE 8x7B: Use ~14B parameters (2 of 8 experts)</li>
+    </ul>
+
+    <p><strong>Result:</strong> Capacity of 56B model at speed/cost of 14B model = <strong>4× efficiency gain!</strong></p>
+</div>
+
+<h3>Load Balancing Challenge</h3>
+
+<p>Without constraints, the router might use only a few experts:</p>
+
+<div class="architecture">
+Expert 1: 90% of tokens  ← Overused
+Expert 2: 8% of tokens
+Expert 3: 2% of tokens
+Expert 4-8: 0% of tokens  ← Wasted!
+</div>
+
+<p><strong>Solution: Auxiliary Loss</strong></p>
+
+<div class="equation">
+$$\mathcal{L}_{\text{aux}} = \alpha \cdot \sum_{i=1}^{N} \left( f_i - \frac{1}{N} \right)^2$$
+</div>
+
+<p>where \(f_i\) is the fraction of tokens routed to expert \(i\), and \(N\) is the number of experts.</p>
+
+<pre><code>def auxiliary_loss(expert_usage):
+    ideal_usage = 1.0 / num_experts  # Each should get ~12.5%
+    actual_usage = expert_usage / expert_usage.sum()
+
+    # Penalize deviation from balanced usage
+    balance_loss = ((actual_usage - ideal_usage) ** 2).sum()
+
+    return balance_loss
+
+# Total loss
+total_loss = task_loss + alpha * auxiliary_loss</code></pre>
+
+<p>This encourages the router to distribute tokens evenly across experts.</p>
+
+<h2>Real-World MoE Models</h2>
+
+<h3>Mixtral 8x7B (Mistral AI)</h3>
+
+<p><strong>Confirmed open-source MoE:</strong></p>
+<ul>
+    <li>32 layers</li>
+    <li>8 experts per layer</li>
+    <li>Top-2 routing</li>
+    <li>46.7B total parameters</li>
+    <li>12.9B active per token</li>
+    <li>Apache 2.0 license</li>
+</ul>
+
+<p><strong>Performance:</strong> Matches or beats GPT-3.5 on many tasks, much more efficient than dense models.</p>
+
+<h3>Switch Transformer (Google)</h3>
+
+<p><strong>Research MoE with extreme scale:</strong></p>
+<ul>
+    <li>1.6 TRILLION total parameters</li>
+    <li>2048 experts per layer</li>
+    <li>Top-1 routing (maximum sparsity)</li>
+    <li>~10B active per token</li>
+</ul>
+
+<p><strong>Insight:</strong> You can have massive capacity without massive computation.</p>
+
+<div class="callout reflection">
+    <h4>🤔 Reflection: Specialization vs Generalization</h4>
+    <p>MoE creates <strong>specialized</strong> experts, each good at certain tasks.</p>
+    <p>But does specialization come at a cost?</p>
+    <ul>
+        <li>Dense models learn <strong>unified</strong> representations</li>
+        <li>MoE models learn <strong>factorized</strong> representations</li>
+    </ul>
+    <p>Which is better? It depends on the task.</p>
+    <p>Is the brain more like a dense model or MoE?<br>(Hint: Different brain regions specialize in different tasks...)</p>
+</div>
+
+<h2>The Future of Scaling</h2>
+
+<p>MoE represents a fundamental shift:</p>
+
+<table>
+    <tr>
+        <th>Old Paradigm</th>
+        <th>New Paradigm</th>
+    </tr>
+    <tr>
+        <td>Better model<br>= More parameters<br>= More computation</td>
+        <td>Better model<br>= More parameters<br>+ Sparse activation<br>= Same computation</td>
+    </tr>
+</table>
+
+<p>This enables:</p>
+<ul>
+    <li>Trillion-parameter models on consumer hardware</li>
+    <li>Specialized experts for different domains</li>
+    <li>More efficient scaling</li>
+</ul>
+
+<!-- Chapter 10 -->
+<h1>Chapter 10: Query or Completion?</h1>
+
+<h2>The Newline Mystery</h2>
+
+<p>You type into the Transformer Explainer:</p>
+
+<pre><code>"The cat sat on the mat."</code></pre>
+
+<p>The model predicts:</p>
+
+<pre><code>\n (newline)
+\n (newline)
+\n (newline)
+...</code></pre>
+
+<p>What's happening? Why won't it continue the story?</p>
+
+<h2>Understanding Base Models vs Instruction-Tuned Models</h2>
+
+<h3>GPT-2: A Base Model</h3>
+
+<p>GPT-2 was trained on raw internet text with one simple objective:</p>
+
+<p><strong>"Predict the next token"</strong></p>
+
+<p>It saw patterns like:</p>
+
+<pre><code>"The cat sat on the mat.\n\n"  ← Two newlines = paragraph break
+"Next paragraph starts here"</code></pre>
+
+<p>When you write a complete sentence, GPT-2 thinks: <strong>"This looks finished. Next should be a newline."</strong></p>
+
+<p>It's not being stubborn—it's doing exactly what it was trained to do!</p>
+
+<h3>Modern Chat Models</h3>
+
+<p>Models like GPT-3.5, GPT-4, Claude went through additional training:</p>
+
+<p><strong>1. Instruction Tuning</strong></p>
+
+<pre><code>Input: "Continue this story: The cat sat on the mat."
+Expected: [actual continuation, not newlines]
+
+Input: "Q: What is 2+2? A:"
+Expected: "4"</code></pre>
+
+<p><strong>2. RLHF (Reinforcement Learning from Human Feedback)</strong></p>
+<ul>
+    <li>Humans rate outputs</li>
+    <li>Model learns what humans prefer</li>
+    <li>Gets better at following instructions</li>
+</ul>
+
+<h3>The Key Difference</h3>
+
+<div class="diagram">
+    <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Base Model -->
+        <rect x="50" y="50" width="500" height="100" rx="5" fill="#ffebee" stroke="#f44336" stroke-width="2"/>
+        <text x="300" y="75" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">Base Model (GPT-2)</text>
+        <text x="300" y="95" font-family="monospace" font-size="11" text-anchor="middle">User: "The cat sat on the mat."</text>
+        <text x="300" y="115" font-family="monospace" font-size="11" text-anchor="middle" fill="#666">Model: "This pattern suggests end of paragraph.</text>
+        <text x="300" y="130" font-family="monospace" font-size="11" text-anchor="middle" fill="#666">Predict: \n"</text>
+
+        <!-- Instruction-Tuned Model -->
+        <rect x="50" y="170" width="500" height="100" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+        <text x="300" y="195" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">Instruction-Tuned (GPT-4)</text>
+        <text x="300" y="215" font-family="monospace" font-size="11" text-anchor="middle">User: "Continue this story: The cat sat on the mat."</text>
+        <text x="300" y="235" font-family="monospace" font-size="11" text-anchor="middle" fill="#666">Model: "User wants continuation.</text>
+        <text x="300" y="250" font-family="monospace" font-size="11" text-anchor="middle" fill="#666">Predict: 'and looked around...'"</text>
+    </svg>
+    <div class="diagram-caption">Figure 10.1: Base vs instruction-tuned model behavior</div>
+</div>
+
+<h2>Why GPT-2 Struggles with Questions</h2>
+
+<p><strong>Input:</strong> "Q: What is the capital of France? A:"</p>
+
+<p><strong>GPT-2's reasoning</strong> (statistical pattern matching):</p>
+<ol>
+    <li>"I've seen Q&A patterns before"</li>
+    <li>"After 'A:' usually comes a short answer"</li>
+    <li>"But also often comes a newline (end of Q&A pair)"</li>
+    <li>"Let me predict based on probability..."</li>
+</ol>
+
+<p><strong>Result:</strong> Might predict "Paris" but also might predict "\n" or "bout" (as in "About")</p>
+
+<p>It's <strong>pattern matching</strong>, not <strong>understanding</strong> the question.</p>
+
+<h2>Encouraging Continuation in GPT-2</h2>
+
+<h3>Strategy 1: Incomplete Prompts</h3>
+
+<table>
+    <tr>
+        <th>Bad (Complete)</th>
+        <th>Good (Incomplete)</th>
+    </tr>
+    <tr>
+        <td>"The story ended."<br>→ Predicts: \n</td>
+        <td>"The story ended, but"<br>→ Predicts: "then", "suddenly"</td>
+    </tr>
+    <tr>
+        <td>"Artificial Intelligence."<br>→ Predicts: \n</td>
+        <td>"Artificial Intelligence is transforming the"<br>→ Predicts: "world", "way", "industry"</td>
+    </tr>
+</table>
+
+<h3>Strategy 2: Adjust Temperature</h3>
+
+<p>Higher temperature = more randomness = less likely to always pick newline:</p>
+
+<div class="equation">
+$$P(w_i) = \frac{e^{z_i / T}}{\sum_j e^{z_j / T}}$$
+</div>
+
+<p>Where \(T\) is temperature:</p>
+<ul>
+    <li>\(T = 0.3\): Conservative, likely sticks with newline</li>
+    <li>\(T = 0.8\): Default, balanced</li>
+    <li>\(T = 1.5\): Creative, explores alternatives</li>
+</ul>
+
+<h2>The Evolution: GPT-2 → ChatGPT</h2>
+
+<div class="diagram">
+    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="timeline-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#667eea" />
+            </marker>
+        </defs>
+
+        <!-- Timeline -->
+        <line x1="50" y1="200" x2="550" y2="200" stroke="#667eea" stroke-width="3" marker-end="url(#timeline-arrow)"/>
+
+        <!-- 2019: GPT-2 -->
+        <circle cx="100" cy="200" r="8" fill="#667eea"/>
+        <text x="100" y="180" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">2019</text>
+        <rect x="50" y="220" width="100" height="60" rx="5" fill="#e8eaf6" stroke="#667eea" stroke-width="2"/>
+        <text x="100" y="240" font-family="Arial" font-size="11" text-anchor="middle" font-weight="bold">GPT-2</text>
+        <text x="100" y="255" font-family="Arial" font-size="9" text-anchor="middle">Base Model</text>
+        <text x="100" y="268" font-family="Arial" font-size="9" text-anchor="middle" fill="#666">Text completion</text>
+
+        <!-- 2020: GPT-3 -->
+        <circle cx="250" cy="200" r="8" fill="#667eea"/>
+        <text x="250" y="180" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">2020</text>
+        <rect x="200" y="220" width="100" height="60" rx="5" fill="#e8eaf6" stroke="#667eea" stroke-width="2"/>
+        <text x="250" y="240" font-family="Arial" font-size="11" text-anchor="middle" font-weight="bold">GPT-3</text>
+        <text x="250" y="255" font-family="Arial" font-size="9" text-anchor="middle">Bigger base</text>
+        <text x="250" y="268" font-family="Arial" font-size="9" text-anchor="middle" fill="#666">Few-shot learning</text>
+
+        <!-- 2022: GPT-3.5 -->
+        <circle cx="400" cy="200" r="8" fill="#667eea"/>
+        <text x="400" y="180" font-family="Arial" font-size="12" text-anchor="middle" font-weight="bold">2022</text>
+        <rect x="350" y="220" width="100" height="60" rx="5" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+        <text x="400" y="240" font-family="Arial" font-size="11" text-anchor="middle" font-weight="bold">GPT-3.5</text>
+        <text x="400" y="255" font-family="Arial" font-size="9" text-anchor="middle">Instruction tuned</text>
+        <text x="400" y="268" font-family="Arial" font-size="9" text-anchor="middle" fill="#666">Follows instructions!</text>
+
+        <!-- Training process evolution -->
+        <text x="300" y="340" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">Training Evolution</text>
+
+        <text x="100" y="365" font-family="Arial" font-size="10" text-anchor="middle">Pre-training only</text>
+        <text x="250" y="365" font-family="Arial" font-size="10" text-anchor="middle">Pre-training only</text>
+        <text x="400" y="365" font-family="Arial" font-size="10" text-anchor="middle">Pre-training +</text>
+        <text x="400" y="378" font-family="Arial" font-size="10" text-anchor="middle">Instruction tuning</text>
+        <text x="400" y="391" font-family="Arial" font-size="10" text-anchor="middle">+ RLHF</text>
+    </svg>
+    <div class="diagram-caption">Figure 10.2: Evolution from base models to instruction-tuned models</div>
+</div>
+
+<h3>What Changed?</h3>
+
+<div class="architecture">
+<strong>GPT-2:</strong>
+└─ Pre-training (predict next token)
+
+<strong>GPT-3.5:</strong>
+├─ Pre-training (predict next token)
+└─ Instruction tuning + RLHF
+
+<strong>GPT-4:</strong>
+├─ Pre-training (predict next token)
+├─ Instruction tuning
+├─ RLHF
+└─ Additional safety training
+</div>
+
+<h2>The Philosophical Question</h2>
+
+<p>When GPT-2 predicts "\n" after a complete sentence, is it:</p>
+
+<p><strong>A) Correct?</strong></p>
+<ul>
+    <li>The training data supports this</li>
+    <li>It's doing what it was trained to do</li>
+    <li>From a probabilistic standpoint, \n IS a valid next token</li>
+</ul>
+
+<p><strong>B) Wrong?</strong></p>
+<ul>
+    <li>We wanted it to continue</li>
+    <li>It's not "understanding" our intent</li>
+    <li>It's failing at the task we implied</li>
+</ul>
+
+<p><strong>The answer:</strong> Neither and both. It's doing exactly what it was trained to do—we just want it to do something different!</p>
+
+<p>This is why instruction tuning was such a breakthrough.</p>
+
+<div class="callout experiment">
+    <h4>🔬 Experiment: Completion Bias</h4>
+    <p>In the Transformer Explainer:</p>
+    <ol>
+        <li><strong>Complete thought:</strong>
+            <pre><code>"Machine learning is fascinating."</code></pre>
+            <ul>
+                <li>Check top predictions</li>
+                <li>Is \n in top 3?</li>
+            </ul>
+        </li>
+        <li><strong>Incomplete thought:</strong>
+            <pre><code>"Machine learning is fascinating because"</code></pre>
+            <ul>
+                <li>Check top predictions</li>
+                <li>Are content words in top 3?</li>
+            </ul>
+        </li>
+        <li><strong>Temperature variation:</strong>
+            <ul>
+                <li>Try temp=0.3 (conservative)</li>
+                <li>Try temp=1.5 (creative)</li>
+                <li>How does this affect newline probability?</li>
+            </ul>
+        </li>
+    </ol>
+</div>
+
+<div class="callout reflection">
+    <h4>🤔 Reflection: The Intent Gap</h4>
+    <p><strong>The fundamental problem:</strong></p>
+    <div class="architecture">
+What we type:     "The cat sat on the mat."
+What we mean:     "Continue this story!"
+What GPT-2 sees:  Statistical pattern → probably ends here
+    </div>
+    <p><strong>The gap:</strong> Our <strong>intent</strong> vs the model's <strong>training objective</strong></p>
+    <p>Instruction tuning bridges this gap by teaching models to infer intent.</p>
+    <p>But even modern models sometimes fail at this. They're pattern matchers, not mind readers.</p>
+    <p><strong>Question:</strong> If a model perfectly mimics understanding without actually understanding, does the distinction matter?</p>
+</div>
+
+<!-- Footer -->
+<div style="page-break-before: always; margin-top: 100px; padding-top: 40px; border-top: 2px solid #667eea; text-align: center;">
+    <h2>About This Book</h2>
+    <p><strong>Zen and the Art of LLM Inference</strong> is an ongoing exploration of transformer architectures, visualization techniques, and the philosophy of understanding artificial intelligence.</p>
+
+    <p><strong>Version:</strong> 0.1.0 (January 2025)</p>
+
+    <p><strong>Source Code:</strong> The Transformer Explainer visualization<br>
+    <a href="https://github.com/haxidermist/transformer-explainer">github.com/haxidermist/transformer-explainer</a></p>
+
+    <p><strong>Based on:</strong> Conversations about GPT-2 architecture, mixture of experts, and the nature of machine understanding.</p>
+
+    <p style="font-style: italic; margin-top: 40px; color: #666;">
+    "The Buddha, the Godhead, resides quite as comfortably in the circuits of a digital computer or the gears of a cycle transmission as he does at the top of a mountain or in the petals of a flower."<br>
+    — Robert M. Pirsig, Zen and the Art of Motorcycle Maintenance
+    </p>
+
+    <p style="margin-top: 40px; font-size: 0.9em; color: #666;">
+    This book is designed to grow over time. Check the repository for updates and new chapters.
+    </p>
+</div>
+
+</body>
+</html>
