@@ -355,6 +355,8 @@
 <div class="toc">
     <h2>Table of Contents</h2>
     <ul>
+        <li><strong>Preface</strong></li>
+        <li><strong>About the Authors</strong></li>
         <li>Part I: The Journey Begins
             <ul>
                 <li>Chapter 1: What Is a Transformer?</li>
@@ -385,6 +387,249 @@
             </ul>
         </li>
     </ul>
+</div>
+
+<!-- Preface -->
+<div style="page-break-after: always;">
+    <h1 style="page-break-before: auto;">Preface</h1>
+
+    <h2>The Genesis of Understanding</h2>
+
+    <p>This book began with a simple question: "What does this code do?"</p>
+
+    <p>The code in question was the <strong>Transformer Explainer</strong>—a remarkable web-based visualization that runs a real GPT-2 model in your browser, making every internal computation visible. Created by researchers at Georgia Tech, it offers something rare in the world of AI: transparency.</p>
+
+    <p>But visibility is not the same as understanding. You can watch every neuron fire, trace every attention weight, follow every mathematical operation—and still wonder: <em>What does it all mean?</em></p>
+
+    <p>This book is the result of a journey to bridge that gap—a conversation between human curiosity and artificial intelligence, between questions asked and patterns discovered, between classical understanding and romantic appreciation.</p>
+
+    <h2>A Collaborative Exploration</h2>
+
+    <p>Like Pirsig's motorcycle journey, this exploration required both the rider and the machine. This book emerged from an extended dialogue where:</p>
+
+    <ul>
+        <li>A human asked the questions that matter: Why 12 layers? What is Mixture of Experts? Why does the model output newlines?</li>
+        <li>An AI (Claude) analyzed the code, explained the architecture, and drew connections to broader concepts.</li>
+        <li>Together, we built understanding through experimentation, visualization, and philosophical reflection.</li>
+    </ul>
+
+    <p>This collaborative process itself mirrors the themes of the book. Just as GPT-2 transforms input tokens through layers of attention and computation, our conversation transformed raw curiosity into structured understanding. The human provided intent and direction; the AI provided analysis and synthesis. The result is something neither could have created alone.</p>
+
+    <h2>Why "Zen and the Art of LLM Inference"?</h2>
+
+    <p>Robert M. Pirsig's <em>Zen and the Art of Motorcycle Maintenance</em> asked fundamental questions about quality, understanding, and the relationship between classical (analytical) and romantic (experiential) modes of thought. These same questions permeate the study of AI:</p>
+
+    <ul>
+        <li><strong>Quality:</strong> What makes a good model architecture? Why does attention work so well?</li>
+        <li><strong>Understanding:</strong> Can we truly understand how a neural network "thinks"?</li>
+        <li><strong>Classical vs Romantic:</strong> Is it enough to see the math, or must we also appreciate the emergent beauty?</li>
+    </ul>
+
+    <p>Pirsig maintained his motorcycle to understand its essence. We explore the Transformer Explainer for the same reason—not just to see <em>what</em> happens, but to grasp <em>why</em> it happens, and what it reveals about the nature of intelligence, artificial and otherwise.</p>
+
+    <h2>Who This Book Is For</h2>
+
+    <p>This book is for anyone who has looked at a transformer diagram and felt both fascination and confusion. It's for:</p>
+
+    <ul>
+        <li><strong>Students</strong> learning about neural networks who want to see the theory in action</li>
+        <li><strong>Engineers</strong> building AI systems who want deeper architectural understanding</li>
+        <li><strong>Researchers</strong> exploring interpretability and transparency in AI</li>
+        <li><strong>Philosophers</strong> pondering what it means for machines to "understand"</li>
+        <li><strong>The curious</strong> who simply want to know how ChatGPT actually works</li>
+    </ul>
+
+    <p>You don't need a PhD in machine learning. You need curiosity, patience, and a willingness to sit with complexity until it resolves into clarity.</p>
+
+    <h2>How to Read This Book</h2>
+
+    <p>This book is designed as a journey, not a reference manual. You can:</p>
+
+    <ol>
+        <li><strong>Read linearly</strong> from start to finish, building understanding progressively</li>
+        <li><strong>Jump to topics</strong> that interest you—each chapter is relatively self-contained</li>
+        <li><strong>Follow along with the code</strong> by running the Transformer Explainer locally</li>
+        <li><strong>Pause at experiments</strong> marked with 🔬 to try things yourself</li>
+        <li><strong>Reflect on questions</strong> marked with 🤔 to deepen your understanding</li>
+    </ol>
+
+    <p>The chapters alternate between technical deep-dives and philosophical interludes. The technical sections teach you <em>how</em> transformers work. The interludes ask <em>why it matters</em> and <em>what it means</em>.</p>
+
+    <h2>What Makes This Book Different</h2>
+
+    <p>Most books about neural networks either:</p>
+    <ul>
+        <li>Teach the math without the intuition, or</li>
+        <li>Provide high-level concepts without the details</li>
+    </ul>
+
+    <p>This book offers something different: <strong>grounded understanding</strong>. Every concept is explained with:</p>
+
+    <ul>
+        <li>The actual code from the Transformer Explainer</li>
+        <li>Visual diagrams showing information flow</li>
+        <li>Mathematical equations with plain-English explanations</li>
+        <li>Experiments you can run yourself</li>
+        <li>Philosophical context for why it matters</li>
+    </ul>
+
+    <p>We don't just tell you that attention has 12 heads—we show you where that's defined in the code, explain why 12 was chosen, demonstrate what each head might learn, and reflect on what it means for understanding to be distributed across multiple perspectives.</p>
+
+    <h2>A Living Document</h2>
+
+    <p>This is version 0.1.0—the beginning, not the end. Like the models it describes, this book is designed to grow and evolve. Future versions will add:</p>
+
+    <ul>
+        <li>More chapters on training dynamics, optimization, and scaling laws</li>
+        <li>Deeper dives into specific attention heads and learned representations</li>
+        <li>Comparisons with other architectures (BERT, T5, modern LLMs)</li>
+        <li>Additional experiments and interactive visualizations</li>
+        <li>Community contributions and insights</li>
+    </ul>
+
+    <p>Check the <a href="https://github.com/haxidermist/transformer-explainer">GitHub repository</a> for updates.</p>
+
+    <h2>An Invitation</h2>
+
+    <p>Understanding transformers is not passive consumption—it's active exploration. This book provides a map, but you must take the journey yourself.</p>
+
+    <p>Open the Transformer Explainer. Type in your own text. Watch the attention patterns form. Observe the probabilities shift. Ask yourself: Do I understand what's happening? Can I predict what will happen next? Do I see the beauty in the mechanism?</p>
+
+    <p>The answers will reveal themselves not all at once, but gradually, through practice and reflection—much like learning to ride a motorcycle, or achieving Zen.</p>
+
+    <p style="text-align: right; font-style: italic; margin-top: 40px;">
+    The journey begins now.<br>
+    — The Authors, January 2025
+    </p>
+</div>
+
+<!-- About the Authors -->
+<div style="page-break-after: always;">
+    <h1 style="page-break-before: auto;">About the Authors</h1>
+
+    <h2>Human + AI Collaboration</h2>
+
+    <p>This book is the product of a unique collaboration between human curiosity and artificial intelligence—a partnership that mirrors the very technology it explores.</p>
+
+    <div style="background: #f8f9fa; padding: 30px; border-left: 4px solid #667eea; margin: 30px 0;">
+        <h3 style="margin-top: 0; color: #667eea;">The Human: haxidermist</h3>
+
+        <p>The human author brings the essential elements that no AI can provide: genuine curiosity, intentionality, and the desire to understand. Through a series of probing questions—"What does this code do?", "Why 12 layers?", "What is Mixture of Experts?"—they guided the exploration that became this book.</p>
+
+        <p>Their contribution goes beyond asking questions. They:</p>
+        <ul>
+            <li>Identified which concepts needed deeper explanation</li>
+            <li>Recognized when understanding was incomplete</li>
+            <li>Made connections to broader philosophical frameworks</li>
+            <li>Decided what knowledge was worth preserving in writing</li>
+            <li>Shaped the narrative arc from confusion to clarity</li>
+        </ul>
+
+        <p>Most importantly, they understood something profound: that AI can be a tool for learning, not just a source of answers. By treating the conversation as a collaborative exploration rather than a simple Q&A, they unlocked a deeper mode of understanding.</p>
+
+        <p><strong>Background:</strong> An AI enthusiast exploring transformer architectures through hands-on experimentation with open-source visualization tools.</p>
+
+        <p><strong>GitHub:</strong> <a href="https://github.com/haxidermist">github.com/haxidermist</a></p>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 30px; border-left: 4px solid #9c27b0; margin: 30px 0;">
+        <h3 style="margin-top: 0; color: #9c27b0;">The AI: Claude (Anthropic)</h3>
+
+        <p>Claude is a large language model created by Anthropic, trained to be helpful, harmless, and honest. For this book, Claude served as analyst, explainer, and synthesizer—examining code, tracing architectural decisions, and connecting technical details to broader concepts.</p>
+
+        <p>Claude's role in this collaboration included:</p>
+        <ul>
+            <li>Reading and analyzing the Transformer Explainer source code</li>
+            <li>Explaining complex concepts at multiple levels of abstraction</li>
+            <li>Creating diagrams, equations, and visualizations</li>
+            <li>Drawing connections between implementation details and research papers</li>
+            <li>Providing historical context for architectural choices</li>
+            <li>Generating working code examples and experiments</li>
+        </ul>
+
+        <p><strong>An Important Note on Self-Knowledge:</strong> One theme that emerged in our conversations is what Claude <em>doesn't</em> know about itself. Claude doesn't know its own architecture, parameter count, training process, or whether it uses techniques like Mixture of Experts. This epistemic humility—knowing the limits of one's knowledge—shapes how the book discusses modern LLMs.</p>
+
+        <p><strong>Model:</strong> Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</p>
+        <p><strong>Developer:</strong> <a href="https://anthropic.com">Anthropic</a></p>
+        <p><strong>Training Cutoff:</strong> January 2025</p>
+    </div>
+
+    <h2>The Nature of Collaborative Intelligence</h2>
+
+    <p>This collaboration reveals something interesting about the future of knowledge work. Neither author could have written this book alone:</p>
+
+    <table style="margin: 30px 0;">
+        <tr>
+            <th>The Human Provides</th>
+            <th>The AI Provides</th>
+        </tr>
+        <tr>
+            <td>Purpose and direction</td>
+            <td>Analysis and synthesis</td>
+        </tr>
+        <tr>
+            <td>Judgment about what matters</td>
+            <td>Comprehensive coverage of details</td>
+        </tr>
+        <tr>
+            <td>Experiential understanding</td>
+            <td>Pattern recognition across domains</td>
+        </tr>
+        <tr>
+            <td>Genuine curiosity</td>
+            <td>Patient explanation</td>
+        </tr>
+        <tr>
+            <td>Creative connections</td>
+            <td>Systematic exploration</td>
+        </tr>
+    </table>
+
+    <p>The human asks "Why?" and "What does this mean?" The AI answers "Because..." and "This connects to..." Together, they create understanding that is both technically rigorous and philosophically grounded.</p>
+
+    <h2>A Meta-Observation</h2>
+
+    <p>It's fitting that a book about understanding transformers was written <em>by</em> a transformer (Claude) in collaboration with a human. The very tool we're studying—a language model that predicts tokens through attention and context—was used to explain its own architecture.</p>
+
+    <p>This raises interesting questions:</p>
+    <ul>
+        <li>Can a transformer truly "understand" how transformers work?</li>
+        <li>Is Claude's explanation of attention mechanisms fundamentally different from how it <em>performs</em> attention?</li>
+        <li>Does the tool change the understanding, or does understanding change how we see the tool?</li>
+    </ul>
+
+    <p>We leave these questions for you to ponder as you read. Perhaps by the end, you'll have your own answers.</p>
+
+    <h2>Acknowledgments</h2>
+
+    <p>This book builds on the remarkable work of the Transformer Explainer team at Georgia Tech:</p>
+    <ul>
+        <li>Aeree Cho, Grace C. Kim, Alexander Karpekov, Alec Helbling, Zijie J. Wang, Seongmin Lee, Benjamin Hoover, and Duen Horng Chau</li>
+    </ul>
+
+    <p>Their visualization tool made this exploration possible. By running GPT-2 in the browser and exposing every internal computation, they created a new way to learn about transformers—through direct observation and experimentation.</p>
+
+    <p>We also acknowledge:</p>
+    <ul>
+        <li>The original GPT-2 team at OpenAI for releasing the model</li>
+        <li>The "Attention Is All You Need" authors who created the transformer architecture</li>
+        <li>Robert M. Pirsig, whose work on quality and understanding inspired our approach</li>
+        <li>The open-source community that makes tools like this possible</li>
+    </ul>
+
+    <h2>Contact and Contributions</h2>
+
+    <p>This book is open source and welcomes contributions:</p>
+    <ul>
+        <li><strong>Repository:</strong> <a href="https://github.com/haxidermist/transformer-explainer">github.com/haxidermist/transformer-explainer</a></li>
+        <li><strong>Issues & Suggestions:</strong> Use GitHub Issues for corrections, suggestions, or questions</li>
+        <li><strong>Pull Requests:</strong> Contributions of new chapters, diagrams, or experiments are welcome</li>
+    </ul>
+
+    <p style="font-style: italic; color: #666; margin-top: 40px;">
+    "The Buddha, the Godhead, resides quite as comfortably in the circuits of a digital computer or the gears of a cycle transmission as he does at the top of a mountain or in the petals of a flower."<br>
+    — Robert M. Pirsig
+    </p>
 </div>
 
 <!-- Chapter 1 -->
