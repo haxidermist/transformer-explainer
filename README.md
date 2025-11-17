@@ -6,6 +6,21 @@ Transformer Explainer is an interactive visualization tool designed to help anyo
 
 <a href="https://youtu.be/TFUc41G2ikY" target="_blank"><img width="100%" src='https://github.com/user-attachments/assets/0a4d8888-6555-4df5-bc71-77f1299115c3'></a>
 
+## 📖 Ebook: Zen and the Art of LLM Inference
+
+A companion ebook exploring transformer architectures, GPT-2 internals, and the philosophy of understanding AI, inspired by Robert M. Pirsig's "Zen and the Art of Motorcycle Maintenance."
+
+**[Read the ebook online →](https://haxidermist.github.io/transformer-explainer/)**
+
+Features:
+- Deep dive into GPT-2 architecture with interactive diagrams
+- Mixture of Experts (MoE) explained
+- Base models vs instruction-tuned models
+- Mathematical equations and visualizations
+- Philosophical reflections on AI transparency
+
+Source: [`ebook/`](./ebook/) | Version: 0.1.0
+
 ## Live Demo
 Try Transformer Explainer: http://poloclub.github.io/transformer-explainer
 
