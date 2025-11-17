@@ -33,6 +33,18 @@ npm run dev
 
 Then, on your web browser, access http://localhost:5173.
 
+## Troubleshooting
+
+### Import Path Case Sensitivity
+
+If you encounter errors like `Failed to load url ./popovers/SoftmaxPopover.svelte`, this is likely due to case-sensitive import paths. The `Popovers` directory uses a capital 'P', but some imports may reference it with lowercase `popovers`.
+
+**Solution:** Ensure all imports use the correct casing:
+- Correct: `import SoftmaxPopover from './Popovers/SoftmaxPopover.svelte';`
+- Incorrect: `import SoftmaxPopover from './popovers/SoftmaxPopover.svelte';`
+
+This issue commonly occurs on case-sensitive file systems (Linux, macOS with case-sensitive APFS).
+
 ## Credits
 
 Transformer Explainer was created by <a href="https://aereeeee.github.io/" target="_blank">Aeree Cho</a>, <a href="https://www.linkedin.com/in/chaeyeonggracekim/" target="_blank">Grace C. Kim</a>, <a href="https://alexkarpekov.com/" target="_blank">Alexander Karpekov</a>, <a href="https://alechelbling.com/" target="_blank">Alec Helbling</a>, <a href="https://zijie.wang/" target="_blank">Jay Wang</a>, <a href="https://seongmin.xyz/" target="_blank">Seongmin Lee</a>, <a href="https://bhoov.com/" target="_blank">Benjamin Hoover</a>, and <a href="https://poloclub.github.io/polochau/" target="_blank">Polo Chau</a> at the Georgia Institute of Technology.

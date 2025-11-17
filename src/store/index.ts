@@ -32,7 +32,9 @@ export const inputTextExample = [
 	'Artificial Intelligence is transforming the',
 	'As the spaceship was approaching the',
 	'On the deserted planet they discovered a',
-	'IEEE VIS conference highlights the'
+	'IEEE VIS conference highlights the',
+	'Q: What is the capital of France? A:',
+	'Translate to French: Hello world'
 ];
 
 const initialExIdx = 0;
